@@ -26,15 +26,15 @@ import android.os.Bundle;
 public class ReportingActivity extends Activity {
 
 	private ExceptionReporter exceptionReporter;
-	
+
 	protected ExceptionReporter getExceptionReporter() {
 		return exceptionReporter;
 	}
-	
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		exceptionReporter = ExceptionReporter.register(this);
 		super.onCreate(savedInstanceState);
 	}
-	
+
 }

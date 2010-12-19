@@ -27,13 +27,13 @@ public abstract class ReportingIntentService extends IntentService {
 	public ReportingIntentService(String name) {
 		super(name);
 	}
-	
+
 	private ExceptionReporter exceptionReporter;
-	
+
 	protected ExceptionReporter getExceptionReporter() {
 		return exceptionReporter;
 	}
-	
+
 	@Override
 	public void onCreate() {
 		exceptionReporter = ExceptionReporter.register(this);

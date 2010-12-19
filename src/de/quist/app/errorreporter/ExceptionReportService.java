@@ -50,19 +50,19 @@ import android.util.Log;
 public class ExceptionReportService extends ReportingIntentService {
 
 	static final String ACTION_SEND_REPORT = ExceptionReportService.class.getName().concat(".actionSendReport");
-	
+
 	static final String EXTRA_STACK_TRACE = ExceptionReportService.class.getName().concat(".extraStackTrace");
 	static final String EXTRA_MESSAGE =  ExceptionReportService.class.getName().concat(".extraMessage");
 	static final String EXTRA_THREAD_NAME = ExceptionReportService.class.getName().concat(".extraThreadName");
 	static final String EXTRA_EXTRA_MESSAGE = ExceptionReportService.class.getName().concat(".extraCustomMessage");
-	
+
 	private static final String EXTRA_CURRENT_RETRY_COUNT = ExceptionReportService.class.getName().concat(".extraCurrentRetryCount");
 
 	/**
 	 * The default maximum backoff exponent.
 	 */
 	static final int DEFAULT_MAXIMUM_BACKOFF_EXPONENT = 12;
-	
+
 	/**
 	 * The default maximum number of tries to send a report. This value results in a retry
 	 * time of about 8 hours with an unchanged retry count.
@@ -97,7 +97,7 @@ public class ExceptionReportService extends ReportingIntentService {
 	private void sendReport(Intent intent) throws UnsupportedEncodingException, NameNotFoundException {
 		Log.d(TAG, "Got request to report error: " + intent.toString());
 		Uri server = getTargetUrl();
-		
+
 		String stacktrace = intent.getStringExtra(EXTRA_STACK_TRACE);
 		String message = intent.getStringExtra(EXTRA_MESSAGE);
 		String threadName = intent.getStringExtra(EXTRA_THREAD_NAME);
@@ -107,7 +107,7 @@ public class ExceptionReportService extends ReportingIntentService {
 		params.add(new BasicNameValuePair("message", message));
 		params.add(new BasicNameValuePair("threadName", threadName));
 		if (extraMessage != null) params.add(new BasicNameValuePair("extraMessage", extraMessage));
-		
+
 		PackageManager pm = getPackageManager();
 		try {
 			PackageInfo packageInfo = pm.getPackageInfo(getPackageName(), 0);
@@ -117,11 +117,11 @@ public class ExceptionReportService extends ReportingIntentService {
 		} catch (NameNotFoundException e) {}
 		params.add(new BasicNameValuePair("model", android.os.Build.MODEL));
 		params.add(new BasicNameValuePair("releaseVersion", android.os.Build.VERSION.RELEASE));
-		
+
 		HttpClient httpClient = new DefaultHttpClient();
 		HttpPost post = new HttpPost(server.toString());
 		post.setEntity(new UrlEncodedFormEntity(params, HTTP.UTF_8));
-		
+
 		try {
 			httpClient.execute(post);
 		} catch (ClientProtocolException e) {
@@ -149,7 +149,7 @@ public class ExceptionReportService extends ReportingIntentService {
 			alarmMgr.set(AlarmManager.ELAPSED_REALTIME, SystemClock.elapsedRealtime() + backoff, operation);
 		}
 	}
-	
+
 	public Uri getTargetUrl() throws NameNotFoundException {
 		try {
 			ApplicationInfo ai = getPackageManager().getApplicationInfo(getPackageName(), PackageManager.GET_META_DATA);
@@ -160,7 +160,7 @@ public class ExceptionReportService extends ReportingIntentService {
 			throw e;
 		} 
 	}
-	
+
 	public int getMaximumRetryCount() throws NameNotFoundException {
 		try {
 			ApplicationInfo ai = getPackageManager().getApplicationInfo(getPackageName(), PackageManager.GET_META_DATA);
@@ -188,5 +188,5 @@ public class ExceptionReportService extends ReportingIntentService {
 			throw e;
 		} 
 	}
-	
+
 }

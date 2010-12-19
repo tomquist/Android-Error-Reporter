@@ -25,16 +25,16 @@ import android.app.Service;
 public abstract class ReportingService extends Service {
 
 	private ExceptionReporter exceptionReporter;
-	
+
 	protected ExceptionReporter getExceptionReporter() {
 		return exceptionReporter;
 	}
-	
+
 	@Override
 	public void onCreate() {
 		exceptionReporter = ExceptionReporter.register(this);
 		super.onCreate();
 	}
 
-	
+
 }

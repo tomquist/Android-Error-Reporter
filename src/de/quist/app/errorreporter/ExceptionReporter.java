@@ -33,7 +33,7 @@ import android.util.Log;
 public final class ExceptionReporter {
 
 	private static final String TAG = ExceptionReporter.class.getSimpleName();
-	
+
 	/**
 	 * Registers this context and returns an error handler object
 	 * to be able to manually report errors.
@@ -64,7 +64,7 @@ public final class ExceptionReporter {
 
 	private Context context;
 	private Handler handler;
-	
+
 	private ExceptionReporter(UncaughtExceptionHandler defaultHandler, Context context) {
 		this.handler = new Handler(defaultHandler);
 		this.setContext(context);
@@ -79,7 +79,7 @@ public final class ExceptionReporter {
 			this.subject = subject;
 			this.errorHandler = ExceptionReporter.this;
 		}
-		
+
 		@Override
 		public void uncaughtException(Thread thread, Throwable ex) {
 			try {
@@ -91,7 +91,7 @@ public final class ExceptionReporter {
 		}
 
 	}
-	
+
 	/**
 	 * Sends an error report.
 	 * 
@@ -101,7 +101,7 @@ public final class ExceptionReporter {
 	public void reportException(Thread thread, Throwable ex) {
 		reportException(thread, ex, null);
 	}
-	
+
 	/**
 	 * Sends an error report with an extra message.
 	 * 
@@ -110,10 +110,10 @@ public final class ExceptionReporter {
 	 */
 	public void reportException(Thread thread, Throwable ex, String extraMessage) {
 		final Writer writer = new StringWriter();
-	    final PrintWriter pWriter = new PrintWriter(writer);
-	    ex.printStackTrace(pWriter);
-	    String stackTrace = writer.toString();
-	
+		final PrintWriter pWriter = new PrintWriter(writer);
+		ex.printStackTrace(pWriter);
+		String stackTrace = writer.toString();
+
 		Intent intent = new Intent();
 		intent.setClass(context, ExceptionReportService.class);
 		intent.setAction(ExceptionReportService.ACTION_SEND_REPORT);
@@ -121,7 +121,7 @@ public final class ExceptionReporter {
 		intent.putExtra(ExceptionReportService.EXTRA_STACK_TRACE, stackTrace);
 		intent.putExtra(ExceptionReportService.EXTRA_MESSAGE, ex.getMessage());
 		if (extraMessage != null) intent.putExtra(ExceptionReportService.EXTRA_EXTRA_MESSAGE, extraMessage);
-		
+
 		ComponentName service = context.startService(intent);
 		if (service == null) {
 			Log.e(TAG, "Service has not be added to your AndroidManifest.xml\n" +
@@ -129,5 +129,5 @@ public final class ExceptionReporter {
 					"<service android:name=\""+ExceptionReportService.class.getName()+"\" android:process=\":errorReporter\"/>");
 		}
 	}
-	
+
 }
