@@ -1,0 +1,110 @@
+Android Error-Reporter
+======================
+
+Integration
+------------
+To integrate **Android Error-Reporter** just follow three simple steps:
+
+1. Inherit from one of the base classes (ReportingActivity/ReportingService/ReportingIntentService) or register your context in every `onCreate()` of your activity or context, e.g.: 
+
+    
+        @Override
+        protected void onCreate(Bundle savedInstanceState) {
+            ExceptionReporter reporter = ExceptionReporter.register(this);
+            super.onCreate(savedInstanceState);
+        }
+    
+
+2. Add the ExceptionReportService to your `AndroidManifest.xml` (within the `<application/>` node):
+
+		<service
+			android:name="de.quist.app.errorreporter.ExceptionReportService"
+			android:process=":exceptionReporter"/>
+
+3. Configure the target URL where to send the errors by adding the following line to your `AndroidManifest.xml`:
+
+		<meta-data
+			android:name="de.quist.app.errorreporter.targetUrl"
+			android:value="http://foo.bar/error.php" />
+    
+    
+Usage
+-----
+Unhandled exceptions are reported automatically by the ExceptionReportService
+but you can also report exceptions manually by calling `exceptionHandler.reportException(thread, e)`
+or `exceptionHandler.reportException(thread, e, extraMessage)` on the ExceptionReporter
+object returned by `ExceptionReporter.register(context)`.
+
+If your activity/service inherits from one of the supplied base classes, you can access the
+ExceptionReporter via `getExceptionReporter()`.
+
+The ExceptionReportService tries to send the error to the URL specified in your `AndroidManifest.xml`.
+If it fails it retries with an exponential back-off. The default configuration will increase the back-off
+up to 2^12 sec (about 1h8m) and will retry it 17 times until it gives up (this will result in a total
+time span of 1s+2s+4s+8s+...2^12s*5=8h). You can change these values by adding specific meta-data nodes to your `AndroidManifest.xml` (see __Configuration__)
+
+Configuration
+-------------
+You can add the following name/value pairs as a meta-data node to your `AndroidManifest.xml`:
+<table border="1">
+	<tr>
+		<th><b>Name</b></th>
+		<th><b>Type</b></th>
+		<th><b>Description</b></th>
+	<tr>
+	<tr>
+		<td><tt>de.quist.app.errorreporter.maximumRetryCount</tt></td>
+		<td>int</td>
+		<td>Maximum number of tries to send an error report</td>
+	<tr>
+	<tr>
+		<td><tt>de.quist.app.errorreporter.maximumBackoffExponent</tt></td>
+		<td>int</td>
+		<td>Maximum exponent for the back-off</td>
+	<tr>
+</table>
+		
+
+
+Server
+------
+The server will receive error reports via HTTP-post requests. They will contain the following fields:
+
+<table>
+	<tr>
+		<td><tt>stackTrace</tt></td>
+		<td>The stack trace</td>
+	</tr>
+    <tr>
+        <td><tt>message</tt></td>
+        <td>The exceptions message</td>
+    </tr>
+    <tr>
+        <td><tt>extraMessage</tt></td>
+        <td>A custom message which can be added to manual error reports</td>
+    </tr>
+    <tr>
+        <td><tt>threadName</tt></td>
+        <td>The name of the thread where the error has been thrown</td>
+    </tr>
+    <tr>
+        <td><tt>versionCode</tt></td>
+        <td>The version code (as in your AndroidManifest.xml)</td>
+    </tr>
+    <tr>
+        <td><tt>versionName</tt></td>
+        <td>The version name (as in your AndroidManifest.xml)</td>
+    </tr>
+    <tr>
+        <td><tt>packageName</tt></td>
+        <td>The package name  (as in your AndroidManifest.xml)</td>
+    </tr>
+    <tr>
+        <td><tt>model</tt></td>
+        <td>The phones model name</td>
+    </tr>
+    <tr>
+        <td><tt>releaseVersion</tt></td>
+        <td>The phones release version</td>
+    </tr>
+</table>
