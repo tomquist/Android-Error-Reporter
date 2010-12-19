@@ -41,7 +41,7 @@ ExceptionReporter via `getExceptionReporter()`.
 The ExceptionReportService tries to send the error to the URL specified in your `AndroidManifest.xml`.
 If it fails it retries with an exponential back-off. The default configuration will increase the back-off
 up to 2^12 sec (about 1h8m) and will retry it 17 times until it gives up (this will result in a total
-time span of 1s+2s+4s+8s+...2^12s*5=8h). You can change these values by adding specific meta-data nodes to your `AndroidManifest.xml` (see __Configuration__)
+time span of 1s+2s+4s+8s+...2^12 s*5=8h). You can change these values by adding specific meta-data nodes to your `AndroidManifest.xml` (see __Configuration__)
 
 Configuration
 -------------
