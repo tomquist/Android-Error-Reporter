@@ -61,6 +61,8 @@ public class ExceptionReportService extends ReportingIntentService {
 	static final String EXTRA_THREAD_NAME = ExceptionReportService.class.getName().concat(".extraThreadName");
 	static final String EXTRA_EXTRA_MESSAGE = ExceptionReportService.class.getName().concat(".extraCustomMessage");
 	static final String EXTRA_MANUAL_REPORT = ExceptionReportService.class.getName().concat(".extraManualReport");
+	static final String EXTRA_AVAILABLE_MEMORY = ExceptionReportService.class.getName().concat(".extraAvailableMemory");
+	static final String EXTRA_TOTAL_MEMORY = ExceptionReportService.class.getName().concat(".extraTotalMemory");
 	
 	/**
 	 * Used internally to count retries.
@@ -95,7 +97,6 @@ public class ExceptionReportService extends ReportingIntentService {
 
 	private static final String DEFAULT_FIELDS_TO_SEND = "all";
 
-
 	public ExceptionReportService() {
 		super(ExceptionReportService.class.getSimpleName());
 	}
@@ -129,6 +130,8 @@ public class ExceptionReportService extends ReportingIntentService {
 		String stacktrace = intent.getStringExtra(EXTRA_STACK_TRACE);
 		String exception = intent.getStringExtra(EXTRA_EXCEPTION_CLASS);
 		String message = intent.getStringExtra(EXTRA_MESSAGE);
+		long availableMemory = intent.getLongExtra(EXTRA_AVAILABLE_MEMORY, -1l);
+		long totalMemory = intent.getLongExtra(EXTRA_TOTAL_MEMORY, -1l);
 		String dateTime = intent.getStringExtra(EXTRA_EXCEPTION_TIME);
 		String threadName = intent.getStringExtra(EXTRA_THREAD_NAME);
 		String extraMessage = intent.getStringExtra(EXTRA_EXTRA_MESSAGE);
@@ -139,7 +142,9 @@ public class ExceptionReportService extends ReportingIntentService {
 		addNameValuePair(params, fieldsToSend, "message", message);
 		addNameValuePair(params, fieldsToSend, "threadName", threadName);
 		addNameValuePair(params, fieldsToSend, "extraMessage", extraMessage);
-
+		if (availableMemory >= 0) addNameValuePair(params, fieldsToSend, "availableMemory", availableMemory+"");
+		if (totalMemory >= 0) addNameValuePair(params, fieldsToSend, "totalMemory", totalMemory+"");
+		
 		PackageManager pm = getPackageManager();
 		try {
 			PackageInfo packageInfo = pm.getPackageInfo(getPackageName(), 0);

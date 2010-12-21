@@ -20,6 +20,7 @@
  */
 package de.quist.app.errorreporter;
 
+import java.io.File;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
@@ -30,6 +31,8 @@ import java.util.Date;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Environment;
+import android.os.StatFs;
 import android.util.Log;
 
 public final class ExceptionReporter {
@@ -131,6 +134,8 @@ public final class ExceptionReporter {
 		intent.putExtra(ExceptionReportService.EXTRA_STACK_TRACE, stackTrace);
 		intent.putExtra(ExceptionReportService.EXTRA_MESSAGE, ex.getMessage());
 		intent.putExtra(ExceptionReportService.EXTRA_MANUAL_REPORT, manual);
+		intent.putExtra(ExceptionReportService.EXTRA_AVAILABLE_MEMORY, getAvailableInternalMemorySize());
+		intent.putExtra(ExceptionReportService.EXTRA_TOTAL_MEMORY, getTotalInternalMemorySize());
 		if (extraMessage != null) intent.putExtra(ExceptionReportService.EXTRA_EXTRA_MESSAGE, extraMessage);
 
 		ComponentName service = context.startService(intent);
@@ -140,5 +145,15 @@ public final class ExceptionReporter {
 					"<service android:name=\""+ExceptionReportService.class.getName()+"\" android:process=\":exceptionReporter\"/>");
 		}
 	}
+	
+	public long getAvailableInternalMemorySize() { 
+        StatFs stat = new StatFs(Environment.getDataDirectory().getPath()); 
+        return stat.getAvailableBlocks() * stat.getBlockSize(); 
+    } 
+     
+    public long getTotalInternalMemorySize() { 
+        StatFs stat = new StatFs(Environment.getDataDirectory().getPath()); 
+        return stat.getBlockCount() * stat.getBlockSize(); 
+    } 
 
 }

@@ -123,6 +123,14 @@ The server will receive error reports via HTTP-post requests. They will contain 
         <td>The package name (as defined in your AndroidManifest.xml)</td>
     </tr>
     <tr>
+        <td><tt>availableMemory</tt></td>
+        <td>The devices available memory in bytes</td>
+    </tr>
+    <tr>
+        <td><tt>totalMemory</tt></td>
+        <td>The devices total memory</td>
+    </tr>
+    <tr>
         <td><tt>model</tt></td>
         <td>The phones model name (<tt>android.os.Build.MODEL</tt>)</td>
     </tr>
