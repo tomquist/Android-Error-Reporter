@@ -23,7 +23,10 @@ package de.quist.app.errorreporter;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.StringTokenizer;
 
 import javax.net.ssl.SSLException;
 
@@ -52,10 +55,16 @@ public class ExceptionReportService extends ReportingIntentService {
 	static final String ACTION_SEND_REPORT = ExceptionReportService.class.getName().concat(".actionSendReport");
 
 	static final String EXTRA_STACK_TRACE = ExceptionReportService.class.getName().concat(".extraStackTrace");
+	static final String EXTRA_EXCEPTION_CLASS = ExceptionReportService.class.getName().concat(".extraExceptionClass");
 	static final String EXTRA_MESSAGE =  ExceptionReportService.class.getName().concat(".extraMessage");
+	static final String EXTRA_EXCEPTION_TIME =  ExceptionReportService.class.getName().concat(".extraExceptionTime");
 	static final String EXTRA_THREAD_NAME = ExceptionReportService.class.getName().concat(".extraThreadName");
 	static final String EXTRA_EXTRA_MESSAGE = ExceptionReportService.class.getName().concat(".extraCustomMessage");
-
+	static final String EXTRA_MANUAL_REPORT = ExceptionReportService.class.getName().concat(".extraManualReport");
+	
+	/**
+	 * Used internally to count retries.
+	 */
 	private static final String EXTRA_CURRENT_RETRY_COUNT = ExceptionReportService.class.getName().concat(".extraCurrentRetryCount");
 
 	/**
@@ -68,6 +77,11 @@ public class ExceptionReportService extends ReportingIntentService {
 	 * time of about 8 hours with an unchanged retry count.
 	 */
 	static final int DEFAULT_MAXIMUM_RETRY_COUNT = DEFAULT_MAXIMUM_BACKOFF_EXPONENT + 5;
+	
+	/**
+	 * The default value whether to report on Android 2.2 and above.
+	 */
+	static final boolean DEFAULT_REPORT_ON_FROYO = false;
 
 	private static final String TAG = ExceptionReportService.class.getSimpleName();
 
@@ -76,6 +90,11 @@ public class ExceptionReportService extends ReportingIntentService {
 	 */
 	private static final String META_DATA_MAXIMUM_RETRY_COUNT = ExceptionReportService.class.getPackage().getName().concat(".maximumRetryCount");
 	private static final String META_DATA_MAXIMUM_BACKOFF_EXPONENT = ExceptionReportService.class.getPackage().getName().concat(".maximumBackoffExponent");
+	private static final String META_DATA_REPORT_ON_FROYO = ExceptionReportService.class.getPackage().getName().concat(".reportOnFroyo");
+	private static final String META_DATA_FIELDS_TO_SEND = ExceptionReportService.class.getPackage().getName().concat(".includeFields");
+
+	private static final String DEFAULT_FIELDS_TO_SEND = "all";
+
 
 	public ExceptionReportService() {
 		super(ExceptionReportService.class.getSimpleName());
@@ -83,7 +102,6 @@ public class ExceptionReportService extends ReportingIntentService {
 
 	@Override
 	protected void onHandleIntent(Intent intent) {
-		//android.os.Debug.waitForDebugger();
 		try {
 			if (intent.getAction().equals(ACTION_SEND_REPORT)) {
 				sendReport(intent);
@@ -98,25 +116,40 @@ public class ExceptionReportService extends ReportingIntentService {
 		Log.d(TAG, "Got request to report error: " + intent.toString());
 		Uri server = getTargetUrl();
 
+		boolean isManualReport = intent.getBooleanExtra(EXTRA_MANUAL_REPORT, false);
+		boolean isReportOnFroyo = isReportOnFroyo();
+		boolean isFroyoOrAbove = isFroyoOrAbove();
+		if (isFroyoOrAbove && !isManualReport && !isReportOnFroyo) {
+			// We don't send automatic reports on froyo or above
+			return;
+		}
+		
+		Set<String> fieldsToSend = getFieldsToSend();
+		
 		String stacktrace = intent.getStringExtra(EXTRA_STACK_TRACE);
+		String exception = intent.getStringExtra(EXTRA_EXCEPTION_CLASS);
 		String message = intent.getStringExtra(EXTRA_MESSAGE);
+		String dateTime = intent.getStringExtra(EXTRA_EXCEPTION_TIME);
 		String threadName = intent.getStringExtra(EXTRA_THREAD_NAME);
 		String extraMessage = intent.getStringExtra(EXTRA_EXTRA_MESSAGE);
 		List<NameValuePair> params = new ArrayList<NameValuePair>();
-		params.add(new BasicNameValuePair("stackTrace", stacktrace));
-		params.add(new BasicNameValuePair("message", message));
-		params.add(new BasicNameValuePair("threadName", threadName));
-		if (extraMessage != null) params.add(new BasicNameValuePair("extraMessage", extraMessage));
+		addNameValuePair(params, fieldsToSend, "stackTrace", stacktrace);
+		addNameValuePair(params, fieldsToSend, "exception", exception);
+		addNameValuePair(params, fieldsToSend, "dateTime", dateTime);
+		addNameValuePair(params, fieldsToSend, "message", message);
+		addNameValuePair(params, fieldsToSend, "threadName", threadName);
+		addNameValuePair(params, fieldsToSend, "extraMessage", extraMessage);
 
 		PackageManager pm = getPackageManager();
 		try {
 			PackageInfo packageInfo = pm.getPackageInfo(getPackageName(), 0);
-			params.add(new BasicNameValuePair("versionCode", packageInfo.versionCode+""));
-			params.add(new BasicNameValuePair("versionName", packageInfo.versionName));
-			params.add(new BasicNameValuePair("packageName", packageInfo.packageName));
+			addNameValuePair(params, fieldsToSend, "versionCode", packageInfo.versionCode+"");
+			addNameValuePair(params, fieldsToSend, "versionName", packageInfo.versionName);
+			addNameValuePair(params, fieldsToSend, "packageName", packageInfo.packageName);
 		} catch (NameNotFoundException e) {}
-		params.add(new BasicNameValuePair("model", android.os.Build.MODEL));
-		params.add(new BasicNameValuePair("releaseVersion", android.os.Build.VERSION.RELEASE));
+		addNameValuePair(params, fieldsToSend, "model", android.os.Build.MODEL);
+		addNameValuePair(params, fieldsToSend, "sdk", android.os.Build.VERSION.SDK);
+		addNameValuePair(params, fieldsToSend, "releaseVersion", android.os.Build.VERSION.RELEASE);
 
 		HttpClient httpClient = new DefaultHttpClient();
 		HttpPost post = new HttpPost(server.toString());
@@ -124,6 +157,7 @@ public class ExceptionReportService extends ReportingIntentService {
 
 		try {
 			httpClient.execute(post);
+			Log.d(TAG, "Reported error: " + intent.toString());
 		} catch (ClientProtocolException e) {
 			// Ignore this kind of error
 			Log.e(TAG, "Error while sending an error report", e);
@@ -150,10 +184,35 @@ public class ExceptionReportService extends ReportingIntentService {
 		}
 	}
 
+	private void addNameValuePair(List<NameValuePair> list, Set<String> fieldsToSend, String name, String value) {
+		if (fieldsToSend.contains("all") || fieldsToSend.contains(name)) {
+			list.add(new BasicNameValuePair(name, value));
+		}
+		
+	}
+	
+	private boolean isFroyoOrAbove() {
+		int sdk = getSdkInt();
+		return sdk >= 8;
+	}
+	
+	private int getSdkInt() {
+		String sdk = android.os.Build.VERSION.SDK;
+		try {
+			return Integer.parseInt(sdk);
+		} catch (NumberFormatException e) {
+			return 1000; // Development version
+		}
+	}
+
 	public Uri getTargetUrl() throws NameNotFoundException {
 		try {
 			ApplicationInfo ai = getPackageManager().getApplicationInfo(getPackageName(), PackageManager.GET_META_DATA);
+			if (ai.metaData == null) throw new IllegalArgumentException(ExceptionReportService.class.getPackage().getName().concat("targetUrl is undefined"));
 			String urlString = ai.metaData.getString(ExceptionReportService.class.getPackage().getName().concat(".targetUrl"));
+			if (urlString == null) {
+				throw new IllegalArgumentException(ExceptionReportService.class.getPackage().getName().concat("targetUrl is undefined"));
+			}
 			return Uri.parse(urlString);
 		} catch (NameNotFoundException e) {
 			// Should never happen
@@ -164,11 +223,7 @@ public class ExceptionReportService extends ReportingIntentService {
 	public int getMaximumRetryCount() throws NameNotFoundException {
 		try {
 			ApplicationInfo ai = getPackageManager().getApplicationInfo(getPackageName(), PackageManager.GET_META_DATA);
-			if (ai.metaData.containsKey(META_DATA_MAXIMUM_RETRY_COUNT)) {
-				return ai.metaData.getInt(META_DATA_MAXIMUM_RETRY_COUNT);
-			} else {
-				return DEFAULT_MAXIMUM_RETRY_COUNT;
-			}
+			return ai.metaData.getInt(META_DATA_MAXIMUM_RETRY_COUNT, DEFAULT_MAXIMUM_RETRY_COUNT);
 		} catch (NameNotFoundException e) {
 			// Should never happen
 			throw e;
@@ -178,11 +233,34 @@ public class ExceptionReportService extends ReportingIntentService {
 	public int getMaximumBackoffExponent() throws NameNotFoundException {
 		try {
 			ApplicationInfo ai = getPackageManager().getApplicationInfo(getPackageName(), PackageManager.GET_META_DATA);
-			if (ai.metaData.containsKey(META_DATA_MAXIMUM_BACKOFF_EXPONENT)) {
-				return ai.metaData.getInt(META_DATA_MAXIMUM_BACKOFF_EXPONENT);
-			} else {
-				return DEFAULT_MAXIMUM_BACKOFF_EXPONENT;
+			return ai.metaData.getInt(META_DATA_MAXIMUM_BACKOFF_EXPONENT, DEFAULT_MAXIMUM_BACKOFF_EXPONENT);
+		} catch (NameNotFoundException e) {
+			// Should never happen
+			throw e;
+		} 
+	}
+	
+	public Set<String> getFieldsToSend() throws NameNotFoundException {
+		try {
+			HashSet<String> result = new HashSet<String>();
+			ApplicationInfo ai = getPackageManager().getApplicationInfo(getPackageName(), PackageManager.GET_META_DATA);
+			String fields = ai.metaData.getString(META_DATA_FIELDS_TO_SEND);
+			if (fields == null) fields = DEFAULT_FIELDS_TO_SEND;
+			StringTokenizer st = new StringTokenizer(fields, ",");
+			while (st.hasMoreTokens()) {
+				result.add(st.nextToken());
 			}
+			return result;
+		} catch (NameNotFoundException e) {
+			// Should never happen
+			throw e;
+		} 
+	}
+	
+	public boolean isReportOnFroyo() throws NameNotFoundException {
+		try {
+			ApplicationInfo ai = getPackageManager().getApplicationInfo(getPackageName(), PackageManager.GET_META_DATA);
+			return ai.metaData.getBoolean(META_DATA_REPORT_ON_FROYO, DEFAULT_REPORT_ON_FROYO);
 		} catch (NameNotFoundException e) {
 			// Should never happen
 			throw e;

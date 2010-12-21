@@ -50,17 +50,32 @@ You can add the following name/value pairs as a meta-data node to your `AndroidM
 	<tr>
 		<th><b>Name</b></th>
 		<th><b>Type</b></th>
+		<th><b>Default</b></th>
 		<th><b>Description</b></th>
 	<tr>
 	<tr>
 		<td><tt>de.quist.app.errorreporter.maximumRetryCount</tt></td>
 		<td>int</td>
+		<td>17</td>
 		<td>Maximum number of tries to send an error report</td>
 	<tr>
 	<tr>
 		<td><tt>de.quist.app.errorreporter.maximumBackoffExponent</tt></td>
 		<td>int</td>
+		<td>12</td>
 		<td>Maximum exponent for the back-off</td>
+	<tr>
+	<tr>
+		<td><tt>de.quist.app.errorreporter.reportOnFroyo</tt></td>
+		<td>boolean</td>
+		<td>false</td>
+		<td>Defines whether unhandled exception are reported on Android 2.2 (Froyo) and above or not, since Froyo has its own error-reporting system</td>
+	<tr>
+	<tr>
+		<td><tt>de.quist.app.errorreporter.includeFields</tt></td>
+		<td>String</td>
+		<td>all</td>
+		<td>Comma-separated list of fields to send (field names as of section <b>Server</b>). If the list contains <tt>all</tt>, all available fields will be included</td>
 	<tr>
 </table>
 		
@@ -75,9 +90,17 @@ The server will receive error reports via HTTP-post requests. They will contain 
 		<td><tt>stackTrace</tt></td>
 		<td>The stack trace</td>
 	</tr>
+	<tr>
+		<td><tt>exception</tt></td>
+		<td>The exception class</td>
+	</tr>
     <tr>
         <td><tt>message</tt></td>
         <td>The exceptions message</td>
+    </tr>
+    <tr>
+        <td><tt>dateTime</tt></td>
+        <td>The date and time when the exception happend in the format "yyyy-MM-dd HH:mm:ssZ" (SimpleDateFormat)</td>
     </tr>
     <tr>
         <td><tt>extraMessage</tt></td>
@@ -85,26 +108,30 @@ The server will receive error reports via HTTP-post requests. They will contain 
     </tr>
     <tr>
         <td><tt>threadName</tt></td>
-        <td>The name of the thread where the error has been thrown</td>
+        <td>The name of the thread the error has been thrown in</td>
     </tr>
     <tr>
         <td><tt>versionCode</tt></td>
-        <td>The version code (as in your AndroidManifest.xml)</td>
+        <td>The version code (as defined in your AndroidManifest.xml)</td>
     </tr>
     <tr>
         <td><tt>versionName</tt></td>
-        <td>The version name (as in your AndroidManifest.xml)</td>
+        <td>The version name (as defined in your AndroidManifest.xml)</td>
     </tr>
     <tr>
         <td><tt>packageName</tt></td>
-        <td>The package name  (as in your AndroidManifest.xml)</td>
+        <td>The package name (as defined in your AndroidManifest.xml)</td>
     </tr>
     <tr>
         <td><tt>model</tt></td>
-        <td>The phones model name</td>
+        <td>The phones model name (<tt>android.os.Build.MODEL</tt>)</td>
+    </tr>
+    <tr>
+        <td><tt>sdk</tt></td>
+        <td>The phones sdk version (<tt>android.os.Build.VERSION.SDK</tt>)</td>
     </tr>
     <tr>
         <td><tt>releaseVersion</tt></td>
-        <td>The phones release version</td>
+        <td>The phones release version (<tt>android.os.Build.VERSION.RELEASE</tt>)</td>
     </tr>
 </table>
