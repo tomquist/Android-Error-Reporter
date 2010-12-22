@@ -158,6 +158,7 @@ public final class ExceptionReporter {
 			Log.d(TAG, ExceptionReportActivity.class.getSimpleName() + " is registered. Generating notification...");
 			Notification notification = new Notification();
 			notification.icon = getNotificationIcon();
+			notification.flags |= Notification.FLAG_AUTO_CANCEL;
 			notification.setLatestEventInfo(context, getNotificationTitle(), getNotificationMessage(), PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT));
 			NotificationManager nm = (NotificationManager)context.getSystemService(Context.NOTIFICATION_SERVICE);
 			nm.notify(new Random().nextInt(), notification);

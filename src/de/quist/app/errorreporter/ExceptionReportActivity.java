@@ -10,6 +10,7 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -29,6 +30,7 @@ public class ExceptionReportActivity extends Activity {
 	private static final int DEFAULT_DIALOG_ICON = android.R.drawable.ic_dialog_alert;
 	private static final int DEFAULT_POSITIVE_BUTTON_TEXT = android.R.string.ok;
 	private static final int DEFAULT_NEGATIVE_BUTTON_TEXT = android.R.string.cancel;
+	private static final String TAG = ExceptionReportActivity.class.getSimpleName();
 	
 	private ApplicationInfo info;
 	
@@ -53,6 +55,7 @@ public class ExceptionReportActivity extends Activity {
 			textView.setText(getDialogText());
 			layout.addView(textView, LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT);
 			textEdit = new EditText(this);
+			textEdit.setPadding(textEdit.getPaddingLeft(), textEdit.getPaddingTop() + padding, textEdit.getPaddingRight(), textEdit.getPaddingBottom() + padding);
 			textEdit.setHint(getDialogMessageHint());
 			layout.addView(textEdit, LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT);
 			dialog.setView(layout);
@@ -88,7 +91,9 @@ public class ExceptionReportActivity extends Activity {
 		
 		ApplicationInfo info = getPackageApplicationInfo();
 		if (info != null && info.metaData != null && info.metaData.containsKey(META_DATA_DIALOG_SEND_BUTTON)) {
-			resId = info.metaData.getInt(META_DATA_DIALOG_SEND_BUTTON);
+			try {
+				resId = info.metaData.getInt(META_DATA_DIALOG_SEND_BUTTON);
+			} catch (Exception e) {Log.e(TAG, "Attribute " + META_DATA_DIALOG_SEND_BUTTON + " must be specified using the attribute android:resource", e);}
 		}
 		return getText(resId);
 	}
@@ -98,7 +103,9 @@ public class ExceptionReportActivity extends Activity {
 		
 		ApplicationInfo info = getPackageApplicationInfo();
 		if (info != null && info.metaData != null && info.metaData.containsKey(META_DATA_DIALOG_CANCEL_BUTTON)) {
-			resId = info.metaData.getInt(META_DATA_DIALOG_CANCEL_BUTTON);
+			try {
+				resId = info.metaData.getInt(META_DATA_DIALOG_CANCEL_BUTTON);
+			} catch (Exception e) {Log.e(TAG, "Attribute " + META_DATA_DIALOG_CANCEL_BUTTON + " must be specified using the attribute android:resource", e);}
 		}
 		return getText(resId);
 	}
@@ -110,7 +117,11 @@ public class ExceptionReportActivity extends Activity {
 		ApplicationInfo info = getPackageApplicationInfo();
 		if (info != null) {
 			if (info.metaData != null && info.metaData.containsKey(META_DATA_DIALOG_TITLE)) {
-				dialogTitle = getText(info.metaData.getInt(META_DATA_DIALOG_TITLE));
+				try {
+					int resId = info.metaData.getInt(META_DATA_DIALOG_TITLE);
+					dialogTitle = getText(resId);
+				} catch (Exception e) {Log.e(TAG, "Attribute " + META_DATA_DIALOG_TITLE + " must be specified using the attribute android:resource", e);}
+				
 			}
 			return TextUtils.expandTemplate(dialogTitle, pm.getApplicationLabel(info));
 		} else return dialogTitle;
@@ -123,7 +134,11 @@ public class ExceptionReportActivity extends Activity {
 		ApplicationInfo info = getPackageApplicationInfo();
 		if (info != null) {
 			if (info.metaData != null && info.metaData.containsKey(META_DATA_DIALOG_TEXT)) {
-				dialogText = getText(info.metaData.getInt(META_DATA_DIALOG_TEXT));
+				try {
+					int resId = info.metaData.getInt(META_DATA_DIALOG_TEXT);
+					dialogText = getText(resId);
+				} catch (Exception e) {Log.e(TAG, "Attribute " + META_DATA_DIALOG_TEXT + " must be specified using the attribute android:resource", e);}
+				
 			}
 			return TextUtils.expandTemplate(dialogText, pm.getApplicationLabel(info));
 		} else return dialogText;
@@ -134,7 +149,11 @@ public class ExceptionReportActivity extends Activity {
 		
 		ApplicationInfo info = getPackageApplicationInfo();
 		if (info != null && info.metaData != null && info.metaData.containsKey(META_DATA_DIALOG_MESSAGE_HINT)) {
-			dialogMessageHint = getText(info.metaData.getInt(META_DATA_DIALOG_MESSAGE_HINT));
+			try {
+				int resId = info.metaData.getInt(META_DATA_DIALOG_MESSAGE_HINT);
+				dialogMessageHint = getText(resId);
+			} catch (Exception e) {Log.e(TAG, "Attribute " + META_DATA_DIALOG_MESSAGE_HINT + " must be specified using the attribute android:resource", e);}
+			
 		}
 		return dialogMessageHint;
 	}
@@ -143,7 +162,9 @@ public class ExceptionReportActivity extends Activity {
 		int dialogIcon = DEFAULT_DIALOG_ICON;
 		
 		if (info != null && info.metaData != null && info.metaData.containsKey(META_DATA_DIALOG_ICON)) {
-			dialogIcon = info.metaData.getInt(META_DATA_DIALOG_ICON);
+			try {
+				dialogIcon = info.metaData.getInt(META_DATA_DIALOG_ICON);
+			} catch (Exception e) {Log.e(TAG, "Attribute " + META_DATA_DIALOG_ICON + " must be specified using the attribute android:resource", e);}
 		}
 		return getResources().getDrawable(dialogIcon);
 	}

@@ -109,7 +109,7 @@ You can add the following name/value pairs as a meta-data node to your `AndroidM
 		<td><tt>dialogIcon</tt></td>
 		<td>int</td>
 		<td><tt>@android:drawable/ic_dialog_alert</tt></td>
-		<td><i>(Use the <tt>android:resource</tt> attribute and reference to an existing resource)</i></td>
+		<td>The icon of the dialog for user approved error reports. <i>(Use the <tt>android:resource</tt> attribute and reference to an existing resource)</i></td>
 	<tr>
 	<tr>
 		<td><tt>dialogTitle</tt></td>
@@ -127,7 +127,7 @@ You can add the following name/value pairs as a meta-data node to your `AndroidM
 		<td><tt>dialogMessageHint</tt></td>
 		<td>int</td>
 		<td><i>Undefined</i></td>
-		<td>If you specify this value, a additional text-input field will be shown in the dialog with the specified message as hint. The content will be sent as additional information in the <tt>extraMessage</tt> field (see section <b>Server</b>). <i>(Use the <tt>android:resource</tt> attribute and reference to an existing resource)</i></td>
+		<td>If you specify this value, an additional text-input field will be shown in the dialog with the specified message as hint. The content will be sent as additional information in the <tt>extraMessage</tt> field (see section <b>Server</b>). <i>(Use the <tt>android:resource</tt> attribute and reference to an existing resource)</i></td>
 	<tr>
 	<tr>
 		<td><tt>dialogSendButton</tt></td>
