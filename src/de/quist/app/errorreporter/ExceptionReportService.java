@@ -52,22 +52,22 @@ import android.util.Log;
 
 public class ExceptionReportService extends ReportingIntentService {
 
-	static final String ACTION_SEND_REPORT = ExceptionReportService.class.getName().concat(".actionSendReport");
+	static final String ACTION_SEND_REPORT = ExceptionReportService.class.getPackage().getName().concat(".actionSendReport");
 
-	static final String EXTRA_STACK_TRACE = ExceptionReportService.class.getName().concat(".extraStackTrace");
-	static final String EXTRA_EXCEPTION_CLASS = ExceptionReportService.class.getName().concat(".extraExceptionClass");
-	static final String EXTRA_MESSAGE =  ExceptionReportService.class.getName().concat(".extraMessage");
-	static final String EXTRA_EXCEPTION_TIME =  ExceptionReportService.class.getName().concat(".extraExceptionTime");
-	static final String EXTRA_THREAD_NAME = ExceptionReportService.class.getName().concat(".extraThreadName");
-	static final String EXTRA_EXTRA_MESSAGE = ExceptionReportService.class.getName().concat(".extraCustomMessage");
-	static final String EXTRA_MANUAL_REPORT = ExceptionReportService.class.getName().concat(".extraManualReport");
-	static final String EXTRA_AVAILABLE_MEMORY = ExceptionReportService.class.getName().concat(".extraAvailableMemory");
-	static final String EXTRA_TOTAL_MEMORY = ExceptionReportService.class.getName().concat(".extraTotalMemory");
+	static final String EXTRA_STACK_TRACE = ExceptionReportService.class.getPackage().getName().concat(".extraStackTrace");
+	static final String EXTRA_EXCEPTION_CLASS = ExceptionReportService.class.getPackage().getName().concat(".extraExceptionClass");
+	static final String EXTRA_MESSAGE =  ExceptionReportService.class.getPackage().getName().concat(".extraMessage");
+	static final String EXTRA_EXCEPTION_TIME =  ExceptionReportService.class.getPackage().getName().concat(".extraExceptionTime");
+	static final String EXTRA_THREAD_NAME = ExceptionReportService.class.getPackage().getName().concat(".extraThreadName");
+	static final String EXTRA_EXTRA_MESSAGE = ExceptionReportService.class.getPackage().getName().concat(".extraCustomMessage");
+	static final String EXTRA_MANUAL_REPORT = ExceptionReportService.class.getPackage().getName().concat(".extraManualReport");
+	static final String EXTRA_AVAILABLE_MEMORY = ExceptionReportService.class.getPackage().getName().concat(".extraAvailableMemory");
+	static final String EXTRA_TOTAL_MEMORY = ExceptionReportService.class.getPackage().getName().concat(".extraTotalMemory");
 	
 	/**
 	 * Used internally to count retries.
 	 */
-	private static final String EXTRA_CURRENT_RETRY_COUNT = ExceptionReportService.class.getName().concat(".extraCurrentRetryCount");
+	private static final String EXTRA_CURRENT_RETRY_COUNT = ExceptionReportService.class.getPackage().getName().concat(".extraCurrentRetryCount");
 
 	/**
 	 * The default maximum backoff exponent.

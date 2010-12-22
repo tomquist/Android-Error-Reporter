@@ -26,17 +26,32 @@ import java.io.Writer;
 import java.lang.Thread.UncaughtExceptionHandler;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Random;
 
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Environment;
 import android.os.StatFs;
+import android.text.TextUtils;
 import android.util.Log;
 
 public final class ExceptionReporter {
 
 	private static final String TAG = ExceptionReporter.class.getSimpleName();
+	private static final String META_DATA_NOTIFICATION_ICON = ExceptionReporter.class.getPackage().getName().concat(".notificationIcon");
+	private static final String META_DATA_NOTIFICATION_TITLE = ExceptionReporter.class.getPackage().getName().concat(".notificationTitle");
+	private static final String META_DATA_NOTIFICATION_TEXT = ExceptionReporter.class.getPackage().getName().concat(".notificationText");
+	
+	private static final int DEFAULT_NOTIFICATION_ICON = android.R.drawable.stat_notify_error;
+	private static final CharSequence DEFAULT_NOTIFICATION_TITLE = "^ crashed";
+	private static final CharSequence DEFAULT_NOTIFICATION_TEXT = "Click here to help fixing the issue";
 
 	/**
 	 * Registers this context and returns an error handler object
@@ -68,6 +83,7 @@ public final class ExceptionReporter {
 
 	private Context context;
 	private Handler handler;
+	private ApplicationInfo applicationInfo;
 
 	private ExceptionReporter(UncaughtExceptionHandler defaultHandler, Context context) {
 		this.handler = new Handler(defaultHandler);
@@ -125,7 +141,6 @@ public final class ExceptionReporter {
 		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ssZ");
 		
 		Intent intent = new Intent();
-		intent.setClass(context, ExceptionReportService.class);
 		intent.setAction(ExceptionReportService.ACTION_SEND_REPORT);
 		intent.putExtra(ExceptionReportService.EXTRA_THREAD_NAME, thread.getName());
 		intent.putExtra(ExceptionReportService.EXTRA_EXCEPTION_CLASS, ex.getClass().getName());
@@ -137,20 +152,73 @@ public final class ExceptionReporter {
 		intent.putExtra(ExceptionReportService.EXTRA_TOTAL_MEMORY, getTotalInternalMemorySize());
 		if (extraMessage != null) intent.putExtra(ExceptionReportService.EXTRA_EXTRA_MESSAGE, extraMessage);
 
-		ComponentName service = context.startService(intent);
-		if (service == null) {
-			Log.e(TAG, "Service has not be added to your AndroidManifest.xml\n" +
-					"Add the following line to your manifest:\n" +
-					"<service android:name=\""+ExceptionReportService.class.getName()+"\" android:process=\":exceptionReporter\"/>");
+		intent.setClass(context, ExceptionReportActivity.class);
+		ComponentName activity = intent.resolveActivity(context.getPackageManager());
+		if (activity != null) {
+			Log.d(TAG, ExceptionReportActivity.class.getSimpleName() + " is registered. Generating notification...");
+			Notification notification = new Notification();
+			notification.icon = getNotificationIcon();
+			notification.setLatestEventInfo(context, getNotificationTitle(), getNotificationMessage(), PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT));
+			NotificationManager nm = (NotificationManager)context.getSystemService(Context.NOTIFICATION_SERVICE);
+			nm.notify(new Random().nextInt(), notification);
+		} else {
+			intent.setClass(context, ExceptionReportService.class);
+			ComponentName service = context.startService(intent);
+			if (service == null) {
+				Log.e(TAG, "Service has not be added to your AndroidManifest.xml\n" +
+						"Add the following line to your manifest:\n" +
+						"<service android:name=\""+ExceptionReportService.class.getName()+"\" android:process=\":exceptionReporter\"/>");
+			}
 		}
 	}
 	
-	public long getAvailableInternalMemorySize() { 
+	private int getNotificationIcon() {
+		int result = DEFAULT_NOTIFICATION_ICON;
+		ApplicationInfo info = getApplicationInfo();
+		if (info != null && info.metaData != null && info.metaData.containsKey(META_DATA_NOTIFICATION_ICON)) {
+			result = info.metaData.getInt(META_DATA_NOTIFICATION_ICON);
+		}
+		return result;
+	}
+
+	private CharSequence getNotificationTitle() {
+		CharSequence result = DEFAULT_NOTIFICATION_TITLE;
+		ApplicationInfo info = getApplicationInfo();
+		if (info != null && info.metaData != null && info.metaData.containsKey(META_DATA_NOTIFICATION_TITLE)) {
+			int resId = info.metaData.getInt(META_DATA_NOTIFICATION_TITLE);
+			result = context.getText(resId);
+		}
+		return TextUtils.expandTemplate(result, context.getPackageManager().getApplicationLabel(info));
+	}
+	
+	private CharSequence getNotificationMessage() {
+		CharSequence result = DEFAULT_NOTIFICATION_TEXT;
+		ApplicationInfo info = getApplicationInfo();
+		if (info != null && info.metaData != null && info.metaData.containsKey(META_DATA_NOTIFICATION_TEXT)) {
+			int resId = info.metaData.getInt(META_DATA_NOTIFICATION_TEXT);
+			result = context.getText(resId);
+		}
+		return TextUtils.expandTemplate(result, context.getPackageManager().getApplicationLabel(info));
+	}
+	
+	private ApplicationInfo getApplicationInfo() {
+		if (this.applicationInfo != null) return this.applicationInfo;
+		ApplicationInfo info;
+		try {
+			info = context.getPackageManager().getApplicationInfo(context.getPackageName(), PackageManager.GET_META_DATA);
+			this.applicationInfo = info;
+			return info;
+		} catch (NameNotFoundException e) {
+			return null;
+		}
+	}
+	
+	private long getAvailableInternalMemorySize() { 
         StatFs stat = new StatFs(Environment.getDataDirectory().getPath()); 
         return stat.getAvailableBlocks() * stat.getBlockSize(); 
     } 
      
-    public long getTotalInternalMemorySize() { 
+    private long getTotalInternalMemorySize() { 
         StatFs stat = new StatFs(Environment.getDataDirectory().getPath()); 
         return stat.getBlockCount() * stat.getBlockSize(); 
     } 

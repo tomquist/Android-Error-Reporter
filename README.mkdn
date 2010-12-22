@@ -3,9 +3,11 @@ Android Error-Reporter
 
 Integration
 ------------
-To integrate **Android Error-Reporter** just follow three simple steps:
+To integrate **Android Error-Reporter** just follow four simple steps:
 
-1. Inherit from one of the base classes (ReportingActivity/ReportingService/ReportingIntentService) or register your context in every `onCreate()` of your activity or context, e.g.: 
+1. Download android-error-reporter.jar and add it to your build path
+
+2. Inherit from one of the base classes `Reporting*` (e.g. `ReportingActivity`, `ReportingService` or `ReportingIntentService`) or register your context in every `onCreate()` of your activity or context, e.g.: 
 
     
         @Override
@@ -15,13 +17,13 @@ To integrate **Android Error-Reporter** just follow three simple steps:
         }
     
 
-2. Add the ExceptionReportService to your `AndroidManifest.xml` (within the `<application/>` node):
+3. Add the `ExceptionReportService` to your `AndroidManifest.xml` (within the `<application/>` node):
 
 		<service
 			android:name="de.quist.app.errorreporter.ExceptionReportService"
 			android:process=":exceptionReporter"/>
 
-3. Configure the target URL where to send the errors by adding the following line to your `AndroidManifest.xml`:
+4. Configure the target URL where to send the errors by adding the following line to your `AndroidManifest.xml`:
 
 		<meta-data
 			android:name="de.quist.app.errorreporter.targetUrl"
@@ -30,13 +32,39 @@ To integrate **Android Error-Reporter** just follow three simple steps:
     
 Usage
 -----
-Unhandled exceptions are reported automatically by the ExceptionReportService
-but you can also report exceptions manually by calling `exceptionHandler.reportException(thread, e)`
-or `exceptionHandler.reportException(thread, e, extraMessage)` on the ExceptionReporter
-object returned by `ExceptionReporter.register(context)`.
 
-If your activity/service inherits from one of the supplied base classes, you can access the
+### Report catched exceptions
+
+Unhandled exceptions are automatically handled by the ExceptionReportService. You can also report
+catched exceptions by calling `exceptionHandler.reportException(thread, e)` or
+`exceptionHandler.reportException(thread, e, extraMessage)` on the ExceptionReporter
+object returned by `ExceptionReporter.register(context)`. 
+If your activity/service inherits from one of the supplied base classes (`de.quist.app.errorreporter.Reporting*`), you can access the
 ExceptionReporter via `getExceptionReporter()`.
+
+### User approved error reporting
+
+By default errors are sent to the server automatically without asking the user for permission. This can be
+changed by adding the `ExceptionReportActivity` to your `AndroidManifest.xml`. To do so, add the following line:
+
+	<activity
+		android:name="de.quist.app.errorreporter.ExceptionReportActivity"
+		android:process=":exceptionReporter"
+		android:theme="@android:style/Theme.NoDisplay"/>		
+
+The exception reporter will automatically detect the defined activity and instead of automatically sending the
+report a notification is created which will ask the user for permission to send the notification when clicked.
+You have full control over the texts and icons of both, the notification and the report-dialog. All resources
+can be specified by adding meta-data tags to your `AndroidManifest.xml` which reference to a string/drawable in
+their `android:resource`-attribute, e.g.:
+
+	<meta-data
+		android:name="de.quist.app.errorreporter.dialogMessageHint"
+		android:resource="@string/error_reporting_message_hint"/>
+
+See attributes `de.quist.app.errorreporter.dialog*` and `de.quist.app.errorreporter.notification*` in the section __Configuration__ for more information abouth how to control the notification and dialog.
+
+### Retry-Rules
 
 The ExceptionReportService tries to send the error to the URL specified in your `AndroidManifest.xml`.
 If it fails it retries with an exponential back-off. The default configuration will increase the back-off
@@ -56,26 +84,80 @@ You can add the following name/value pairs as a meta-data node to your `AndroidM
 	<tr>
 		<td><tt>de.quist.app.errorreporter.maximumRetryCount</tt></td>
 		<td>int</td>
-		<td>17</td>
+		<td><tt>17</tt></td>
 		<td>Maximum number of tries to send an error report</td>
 	<tr>
 	<tr>
 		<td><tt>de.quist.app.errorreporter.maximumBackoffExponent</tt></td>
 		<td>int</td>
-		<td>12</td>
+		<td><tt>12</tt></td>
 		<td>Maximum exponent for the back-off</td>
 	<tr>
 	<tr>
 		<td><tt>de.quist.app.errorreporter.reportOnFroyo</tt></td>
 		<td>boolean</td>
-		<td>false</td>
+		<td><tt>false</tt></td>
 		<td>Defines whether unhandled exception are reported on Android 2.2 (Froyo) and above or not, since Froyo has its own error-reporting system</td>
 	<tr>
 	<tr>
 		<td><tt>de.quist.app.errorreporter.includeFields</tt></td>
 		<td>String</td>
-		<td>all</td>
+		<td><tt>all</tt></td>
 		<td>Comma-separated list of fields to send (field names as of section <b>Server</b>). If the list contains <tt>all</tt>, all available fields will be included</td>
+	<tr>
+	<tr>
+		<td><tt>de.quist.app.errorreporter.dialogIcon</tt></td>
+		<td>int</td>
+		<td><tt>@android:drawable/ic_dialog_alert</tt></td>
+		<td><i>(Use the <tt>android:resource</tt> attribute and reference to an existing resource)</i></td>
+	<tr>
+	<tr>
+		<td><tt>de.quist.app.errorreporter.dialogTitle</tt></td>
+		<td>int</td>
+		<td><tt>^1 crashed</tt></td>
+		<td>The dialog title for user approved error reports. You can use a template style text (<tt>^1</tt>) where the first placeholder will be replaced by the application name. <i>(Use the <tt>android:resource</tt> attribute and reference to an existing resource)</i></td>
+	<tr>
+	<tr>
+		<td><tt>de.quist.app.errorreporter.dialogText</tt></td>
+		<td>int</td>
+		<td><tt>^1 crashed because of an unexpected error. Please help fixing the error by sending an error report.</tt></td>
+		<td>The text shown in the dialog for user approved error reports. You can use a template style text (<tt>^1</tt>) where the first placeholder will be replaced by the application name. <i>(Use the <tt>android:resource</tt> attribute and reference to an existing resource)</i></td>
+	<tr>
+	<tr>
+		<td><tt>de.quist.app.errorreporter.dialogMessageHint</tt></td>
+		<td>int</td>
+		<td><i>Undefined</i></td>
+		<td>If you specify this value, a additional text-input field will be shown in the dialog with the specified message as hint. The content will be sent as additional information in the <tt>extraMessage</tt> field (see section <b>Server</b>). <i>(Use the <tt>android:resource</tt> attribute and reference to an existing resource)</i></td>
+	<tr>
+	<tr>
+		<td><tt>de.quist.app.errorreporter.dialogSendButton</tt></td>
+		<td>int</td>
+		<td>@android:string/ok</td>
+		<td>Text on the send-button of the dialog for user approved error reports. <i>(Use the <tt>android:resource</tt> attribute and reference to an existing resource)</i></td>
+	<tr>
+	<tr>
+		<td><tt>de.quist.app.errorreporter.dialogCancelButton</tt></td>
+		<td>int</td>
+		<td>@android:string/cancel</td>
+		<td>Text on the cancel-button of the dialog for user approved error reports. <i>(Use the <tt>android:resource</tt> attribute and reference to an existing resource)</></td>
+	<tr>
+	<tr>
+		<td><tt>de.quist.app.errorreporter.notificationIcon</tt></td>
+		<td>int</td>
+		<td><tt>@android:drawable/stat_notify_error</tt></td>
+		<td>Icon of the notification for user approved error reports. <i>(Use the <tt>android:resource</tt> attribute and reference to an existing resource)</i></td>
+	<tr>
+	<tr>
+		<td><tt>de.quist.app.errorreporter.notificationTitle</tt></td>
+		<td>int</td>
+		<td><tt>^1 crashed</tt></td>
+		<td>The notification title for user approved error reports. You can use a template style text (<tt>^1</tt>) where the first placeholder will be replaced by the application name. <i>(Use the <tt>android:resource</tt> attribute and reference to an existing resource)</i></td>
+	<tr>
+	<tr>
+		<td><tt>de.quist.app.errorreporter.notificationText</tt></td>
+		<td>int</td>
+		<td><tt>Click here to help fixing the issue</tt></td>
+		<td>The notification text for user approved error reports. You can use a template style text (<tt>^1</tt>) where the first placeholder will be replaced by the application name.<i>(Use the <tt>android:resource</tt> attribute and reference to an existing resource)</i></td>
 	<tr>
 </table>
 		
