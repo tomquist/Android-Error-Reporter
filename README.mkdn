@@ -87,19 +87,19 @@ The server will receive error reports via HTTP-post requests. They will contain 
 
 <table>
 	<tr>
-		<td><tt>stackTrace</tt></td>
+		<td><tt>exStackTrace</tt></td>
 		<td>The stack trace</td>
 	</tr>
 	<tr>
-		<td><tt>exception</tt></td>
+		<td><tt>exClass</tt></td>
 		<td>The exception class</td>
 	</tr>
     <tr>
-        <td><tt>message</tt></td>
+        <td><tt>exMessage</tt></td>
         <td>The exceptions message</td>
     </tr>
     <tr>
-        <td><tt>dateTime</tt></td>
+        <td><tt>exDateTime</tt></td>
         <td>The date and time when the exception happend in the format "yyyy-MM-dd HH:mm:ssZ" (SimpleDateFormat)</td>
     </tr>
     <tr>
@@ -107,39 +107,39 @@ The server will receive error reports via HTTP-post requests. They will contain 
         <td>A custom message which can be added to manual error reports</td>
     </tr>
     <tr>
-        <td><tt>threadName</tt></td>
+        <td><tt>exThreadName</tt></td>
         <td>The name of the thread the error has been thrown in</td>
     </tr>
     <tr>
-        <td><tt>versionCode</tt></td>
+        <td><tt>appVersionCode</tt></td>
         <td>The version code (as defined in your AndroidManifest.xml)</td>
     </tr>
     <tr>
-        <td><tt>versionName</tt></td>
+        <td><tt>appVersionName</tt></td>
         <td>The version name (as defined in your AndroidManifest.xml)</td>
     </tr>
     <tr>
-        <td><tt>packageName</tt></td>
+        <td><tt>appPackageName</tt></td>
         <td>The package name (as defined in your AndroidManifest.xml)</td>
     </tr>
     <tr>
-        <td><tt>availableMemory</tt></td>
+        <td><tt>devAvailableMemory</tt></td>
         <td>The devices available memory in bytes</td>
     </tr>
     <tr>
-        <td><tt>totalMemory</tt></td>
-        <td>The devices total memory</td>
+        <td><tt>devTotalMemory</tt></td>
+        <td>The devices total memory in bytes</td>
     </tr>
     <tr>
-        <td><tt>model</tt></td>
+        <td><tt>devModel</tt></td>
         <td>The phones model name (<tt>android.os.Build.MODEL</tt>)</td>
     </tr>
     <tr>
-        <td><tt>sdk</tt></td>
+        <td><tt>devSdk</tt></td>
         <td>The phones sdk version (<tt>android.os.Build.VERSION.SDK</tt>)</td>
     </tr>
     <tr>
-        <td><tt>releaseVersion</tt></td>
+        <td><tt>devReleaseVersion</tt></td>
         <td>The phones release version (<tt>android.os.Build.VERSION.RELEASE</tt>)</td>
     </tr>
 </table>

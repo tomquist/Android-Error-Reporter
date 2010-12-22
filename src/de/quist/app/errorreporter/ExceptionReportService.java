@@ -136,25 +136,25 @@ public class ExceptionReportService extends ReportingIntentService {
 		String threadName = intent.getStringExtra(EXTRA_THREAD_NAME);
 		String extraMessage = intent.getStringExtra(EXTRA_EXTRA_MESSAGE);
 		List<NameValuePair> params = new ArrayList<NameValuePair>();
-		addNameValuePair(params, fieldsToSend, "stackTrace", stacktrace);
-		addNameValuePair(params, fieldsToSend, "exception", exception);
-		addNameValuePair(params, fieldsToSend, "dateTime", dateTime);
-		addNameValuePair(params, fieldsToSend, "message", message);
-		addNameValuePair(params, fieldsToSend, "threadName", threadName);
-		addNameValuePair(params, fieldsToSend, "extraMessage", extraMessage);
-		if (availableMemory >= 0) addNameValuePair(params, fieldsToSend, "availableMemory", availableMemory+"");
-		if (totalMemory >= 0) addNameValuePair(params, fieldsToSend, "totalMemory", totalMemory+"");
+		addNameValuePair(params, fieldsToSend, "exStackTrace", stacktrace);
+		addNameValuePair(params, fieldsToSend, "exClass", exception);
+		addNameValuePair(params, fieldsToSend, "exDateTime", dateTime);
+		addNameValuePair(params, fieldsToSend, "exMessage", message);
+		addNameValuePair(params, fieldsToSend, "exThreadName", threadName);
+		if (extraMessage != null) addNameValuePair(params, fieldsToSend, "extraMessage", extraMessage);
+		if (availableMemory >= 0) addNameValuePair(params, fieldsToSend, "devAvailableMemory", availableMemory+"");
+		if (totalMemory >= 0) addNameValuePair(params, fieldsToSend, "devTotalMemory", totalMemory+"");
 		
 		PackageManager pm = getPackageManager();
 		try {
 			PackageInfo packageInfo = pm.getPackageInfo(getPackageName(), 0);
-			addNameValuePair(params, fieldsToSend, "versionCode", packageInfo.versionCode+"");
-			addNameValuePair(params, fieldsToSend, "versionName", packageInfo.versionName);
-			addNameValuePair(params, fieldsToSend, "packageName", packageInfo.packageName);
+			addNameValuePair(params, fieldsToSend, "appVersionCode", packageInfo.versionCode+"");
+			addNameValuePair(params, fieldsToSend, "appVersionName", packageInfo.versionName);
+			addNameValuePair(params, fieldsToSend, "appPackageName", packageInfo.packageName);
 		} catch (NameNotFoundException e) {}
-		addNameValuePair(params, fieldsToSend, "model", android.os.Build.MODEL);
-		addNameValuePair(params, fieldsToSend, "sdk", android.os.Build.VERSION.SDK);
-		addNameValuePair(params, fieldsToSend, "releaseVersion", android.os.Build.VERSION.RELEASE);
+		addNameValuePair(params, fieldsToSend, "devModel", android.os.Build.MODEL);
+		addNameValuePair(params, fieldsToSend, "devSdk", android.os.Build.VERSION.SDK);
+		addNameValuePair(params, fieldsToSend, "devReleaseVersion", android.os.Build.VERSION.RELEASE);
 
 		HttpClient httpClient = new DefaultHttpClient();
 		HttpPost post = new HttpPost(server.toString());
