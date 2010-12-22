@@ -73,7 +73,7 @@ time span of 1s+2s+4s+8s+...2^12 s*5=8h). You can change these values by adding 
 
 Configuration
 -------------
-You can add the following name/value pairs as a meta-data node to your `AndroidManifest.xml`:
+You can add the following name/value pairs as a meta-data node to your `AndroidManifest.xml`. __All names have to begin with `de.quist.app.errorreporter.`__!!!:
 <table border="1">
 	<tr>
 		<th><b>Name</b></th>
@@ -82,79 +82,79 @@ You can add the following name/value pairs as a meta-data node to your `AndroidM
 		<th><b>Description</b></th>
 	<tr>
 	<tr>
-		<td><tt>de.quist.app.errorreporter.maximumRetryCount</tt></td>
+		<td><tt>maximumRetryCount</tt></td>
 		<td>int</td>
 		<td><tt>17</tt></td>
 		<td>Maximum number of tries to send an error report</td>
 	<tr>
 	<tr>
-		<td><tt>de.quist.app.errorreporter.maximumBackoffExponent</tt></td>
+		<td><tt>maximumBackoffExponent</tt></td>
 		<td>int</td>
 		<td><tt>12</tt></td>
 		<td>Maximum exponent for the back-off</td>
 	<tr>
 	<tr>
-		<td><tt>de.quist.app.errorreporter.reportOnFroyo</tt></td>
+		<td><tt>reportOnFroyo</tt></td>
 		<td>boolean</td>
 		<td><tt>false</tt></td>
 		<td>Defines whether unhandled exception are reported on Android 2.2 (Froyo) and above or not, since Froyo has its own error-reporting system</td>
 	<tr>
 	<tr>
-		<td><tt>de.quist.app.errorreporter.includeFields</tt></td>
+		<td><tt>includeFields</tt></td>
 		<td>String</td>
 		<td><tt>all</tt></td>
 		<td>Comma-separated list of fields to send (field names as of section <b>Server</b>). If the list contains <tt>all</tt>, all available fields will be included</td>
 	<tr>
 	<tr>
-		<td><tt>de.quist.app.errorreporter.dialogIcon</tt></td>
+		<td><tt>dialogIcon</tt></td>
 		<td>int</td>
 		<td><tt>@android:drawable/ic_dialog_alert</tt></td>
 		<td><i>(Use the <tt>android:resource</tt> attribute and reference to an existing resource)</i></td>
 	<tr>
 	<tr>
-		<td><tt>de.quist.app.errorreporter.dialogTitle</tt></td>
+		<td><tt>dialogTitle</tt></td>
 		<td>int</td>
 		<td><tt>^1 crashed</tt></td>
 		<td>The dialog title for user approved error reports. You can use a template style text (<tt>^1</tt>) where the first placeholder will be replaced by the application name. <i>(Use the <tt>android:resource</tt> attribute and reference to an existing resource)</i></td>
 	<tr>
 	<tr>
-		<td><tt>de.quist.app.errorreporter.dialogText</tt></td>
+		<td><tt>dialogText</tt></td>
 		<td>int</td>
 		<td><tt>^1 crashed because of an unexpected error. Please help fixing the error by sending an error report.</tt></td>
 		<td>The text shown in the dialog for user approved error reports. You can use a template style text (<tt>^1</tt>) where the first placeholder will be replaced by the application name. <i>(Use the <tt>android:resource</tt> attribute and reference to an existing resource)</i></td>
 	<tr>
 	<tr>
-		<td><tt>de.quist.app.errorreporter.dialogMessageHint</tt></td>
+		<td><tt>dialogMessageHint</tt></td>
 		<td>int</td>
 		<td><i>Undefined</i></td>
 		<td>If you specify this value, a additional text-input field will be shown in the dialog with the specified message as hint. The content will be sent as additional information in the <tt>extraMessage</tt> field (see section <b>Server</b>). <i>(Use the <tt>android:resource</tt> attribute and reference to an existing resource)</i></td>
 	<tr>
 	<tr>
-		<td><tt>de.quist.app.errorreporter.dialogSendButton</tt></td>
+		<td><tt>dialogSendButton</tt></td>
 		<td>int</td>
-		<td>@android:string/ok</td>
+		<td><tt>@android:string/ok</tt></td>
 		<td>Text on the send-button of the dialog for user approved error reports. <i>(Use the <tt>android:resource</tt> attribute and reference to an existing resource)</i></td>
 	<tr>
 	<tr>
-		<td><tt>de.quist.app.errorreporter.dialogCancelButton</tt></td>
+		<td><tt>dialogCancelButton</tt></td>
 		<td>int</td>
-		<td>@android:string/cancel</td>
+		<td><tt>@android:string/cancel</tt></td>
 		<td>Text on the cancel-button of the dialog for user approved error reports. <i>(Use the <tt>android:resource</tt> attribute and reference to an existing resource)</></td>
 	<tr>
 	<tr>
-		<td><tt>de.quist.app.errorreporter.notificationIcon</tt></td>
+		<td><tt>notificationIcon</tt></td>
 		<td>int</td>
 		<td><tt>@android:drawable/stat_notify_error</tt></td>
 		<td>Icon of the notification for user approved error reports. <i>(Use the <tt>android:resource</tt> attribute and reference to an existing resource)</i></td>
 	<tr>
 	<tr>
-		<td><tt>de.quist.app.errorreporter.notificationTitle</tt></td>
+		<td><tt>notificationTitle</tt></td>
 		<td>int</td>
 		<td><tt>^1 crashed</tt></td>
 		<td>The notification title for user approved error reports. You can use a template style text (<tt>^1</tt>) where the first placeholder will be replaced by the application name. <i>(Use the <tt>android:resource</tt> attribute and reference to an existing resource)</i></td>
 	<tr>
 	<tr>
-		<td><tt>de.quist.app.errorreporter.notificationText</tt></td>
+		<td><tt>notificationText</tt></td>
 		<td>int</td>
 		<td><tt>Click here to help fixing the issue</tt></td>
 		<td>The notification text for user approved error reports. You can use a template style text (<tt>^1</tt>) where the first placeholder will be replaced by the application name.<i>(Use the <tt>android:resource</tt> attribute and reference to an existing resource)</i></td>
