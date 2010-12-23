@@ -52,6 +52,14 @@ changed by adding the `ExceptionReportActivity` to your `AndroidManifest.xml`. T
 		android:process=":exceptionReporter"
 		android:theme="@android:style/Theme.NoDisplay"/>		
 
+<table>
+	<tr>
+		<td><img src="https://github.com/tomquist/Android-Error-Reporter/raw/master/README_images/notification.png"/></td>
+		<td><img src="https://github.com/tomquist/Android-Error-Reporter/raw/master/README_images/dialog.png"/></td>
+		<td><img src="https://github.com/tomquist/Android-Error-Reporter/raw/master/README_images/dialog-message.png"/></td>
+	</tr>
+</table>
+
 The exception reporter will automatically detect the defined activity and instead of automatically sending the
 report a notification is created which will ask the user for permission to send the notification when clicked.
 You have full control over the texts and icons of both, the notification and the report-dialog. All resources
@@ -73,7 +81,10 @@ time span of 1s+2s+4s+8s+...2^12 s*5=8h). You can change these values by adding 
 
 Configuration
 -------------
-You can add the following name/value pairs as a meta-data node to your `AndroidManifest.xml`. __All names have to begin with `de.quist.app.errorreporter.`__!!!:
+You can add the following name/value pairs as a meta-data node to your `AndroidManifest.xml`.
+
+__All names need to have `de.quist.app.errorreporter.` as a prefix__!!!:
+
 <table border="1">
 	<tr>
 		<th><b>Name</b></th>

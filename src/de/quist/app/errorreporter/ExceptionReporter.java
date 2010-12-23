@@ -50,7 +50,7 @@ public final class ExceptionReporter {
 	private static final String META_DATA_NOTIFICATION_TEXT = ExceptionReporter.class.getPackage().getName().concat(".notificationText");
 	
 	private static final int DEFAULT_NOTIFICATION_ICON = android.R.drawable.stat_notify_error;
-	private static final CharSequence DEFAULT_NOTIFICATION_TITLE = "^ crashed";
+	private static final CharSequence DEFAULT_NOTIFICATION_TITLE = "^1 crashed";
 	private static final CharSequence DEFAULT_NOTIFICATION_TEXT = "Click here to help fixing the issue";
 
 	/**

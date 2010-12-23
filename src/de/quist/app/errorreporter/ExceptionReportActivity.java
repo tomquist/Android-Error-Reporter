@@ -26,7 +26,7 @@ public class ExceptionReportActivity extends Activity {
 	private static final String META_DATA_DIALOG_CANCEL_BUTTON = ExceptionReportActivity.class.getPackage().getName().concat(".dialogCancelButton");
 	
 	private static final CharSequence DEFAULT_DIALOG_TITLE = "^1 crashed";
-	private static final CharSequence DEFAULT_DIALOG_TEXT = "^1 crashed because of an unexpected error. Please help fixing the error by sending an error report.";
+	private static final CharSequence DEFAULT_DIALOG_TEXT = "^1 crashed because of an unexpected error. Please help fixing the error by sending an error report to the developer.";
 	private static final int DEFAULT_DIALOG_ICON = android.R.drawable.ic_dialog_alert;
 	private static final int DEFAULT_POSITIVE_BUTTON_TEXT = android.R.string.ok;
 	private static final int DEFAULT_NEGATIVE_BUTTON_TEXT = android.R.string.cancel;
@@ -48,14 +48,15 @@ public class ExceptionReportActivity extends Activity {
 		} else {
 			LinearLayout layout = new LinearLayout(this);
 			float scale = getResources().getDisplayMetrics().density;
-			int padding = (int) (5f * scale + 0.5f);
+			int padding = (int) (10f * scale + 0.5f);
 			layout.setPadding(padding, padding, padding, padding);
 			layout.setOrientation(LinearLayout.VERTICAL);
 			TextView textView = new TextView(this);
 			textView.setText(getDialogText());
+			textView.setTextAppearance(this, android.R.style.TextAppearance_Medium);
+			textView.setPadding(textView.getPaddingLeft() + padding, textView.getPaddingTop() + padding, textView.getPaddingRight() + padding, textView.getPaddingBottom() + padding);
 			layout.addView(textView, LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT);
 			textEdit = new EditText(this);
-			textEdit.setPadding(textEdit.getPaddingLeft(), textEdit.getPaddingTop() + padding, textEdit.getPaddingRight(), textEdit.getPaddingBottom() + padding);
 			textEdit.setHint(getDialogMessageHint());
 			layout.addView(textEdit, LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT);
 			dialog.setView(layout);
