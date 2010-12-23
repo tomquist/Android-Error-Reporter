@@ -48,10 +48,12 @@ public final class ExceptionReporter {
 	private static final String META_DATA_NOTIFICATION_ICON = ExceptionReporter.class.getPackage().getName().concat(".notificationIcon");
 	private static final String META_DATA_NOTIFICATION_TITLE = ExceptionReporter.class.getPackage().getName().concat(".notificationTitle");
 	private static final String META_DATA_NOTIFICATION_TEXT = ExceptionReporter.class.getPackage().getName().concat(".notificationText");
+	private static final String META_DATA_NOTIFICATION_TICKER_TEXT = ExceptionReporter.class.getPackage().getName().concat(".notificationTickerText");
 	
 	private static final int DEFAULT_NOTIFICATION_ICON = android.R.drawable.stat_notify_error;
 	private static final CharSequence DEFAULT_NOTIFICATION_TITLE = "^1 crashed";
 	private static final CharSequence DEFAULT_NOTIFICATION_TEXT = "Click here to help fixing the issue";
+	private static final CharSequence DEFAULT_NOTIFICATION_TICKER_TEXT = "";
 
 	/**
 	 * Registers this context and returns an error handler object
@@ -158,6 +160,7 @@ public final class ExceptionReporter {
 			Log.d(TAG, ExceptionReportActivity.class.getSimpleName() + " is registered. Generating notification...");
 			Notification notification = new Notification();
 			notification.icon = getNotificationIcon();
+			notification.tickerText = getNotificationTickerText();
 			notification.flags |= Notification.FLAG_AUTO_CANCEL;
 			notification.setLatestEventInfo(context, getNotificationTitle(), getNotificationMessage(), PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT));
 			NotificationManager nm = (NotificationManager)context.getSystemService(Context.NOTIFICATION_SERVICE);
@@ -173,6 +176,16 @@ public final class ExceptionReporter {
 		}
 	}
 	
+	private CharSequence getNotificationTickerText() {
+		CharSequence result = DEFAULT_NOTIFICATION_TICKER_TEXT;
+		ApplicationInfo info = getApplicationInfo();
+		if (info != null && info.metaData != null && info.metaData.containsKey(META_DATA_NOTIFICATION_TICKER_TEXT)) {
+			int resId = info.metaData.getInt(META_DATA_NOTIFICATION_TICKER_TEXT);
+			result = context.getText(resId);
+		}
+		return TextUtils.expandTemplate(result, context.getPackageManager().getApplicationLabel(info));
+	}
+
 	private int getNotificationIcon() {
 		int result = DEFAULT_NOTIFICATION_ICON;
 		ApplicationInfo info = getApplicationInfo();

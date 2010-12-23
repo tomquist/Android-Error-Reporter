@@ -54,7 +54,7 @@ public class ExceptionReportActivity extends Activity {
 			TextView textView = new TextView(this);
 			textView.setText(getDialogText());
 			textView.setTextAppearance(this, android.R.style.TextAppearance_Medium);
-			textView.setPadding(textView.getPaddingLeft() + padding, textView.getPaddingTop() + padding, textView.getPaddingRight() + padding, textView.getPaddingBottom() + padding);
+			textView.setPadding(textView.getPaddingLeft() + padding, textView.getPaddingTop(), textView.getPaddingRight() + padding, textView.getPaddingBottom() + padding);
 			layout.addView(textView, LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT);
 			textEdit = new EditText(this);
 			textEdit.setHint(getDialogMessageHint());

@@ -170,6 +170,12 @@ __All names need to have `de.quist.app.errorreporter.` as a prefix__!!!:
 		<td><tt>Click here to help fixing the issue</tt></td>
 		<td>The notification text for user approved error reports. You can use a template style text (<tt>^1</tt>) where the first placeholder will be replaced by the application name.<i>(Use the <tt>android:resource</tt> attribute and reference to an existing resource)</i></td>
 	<tr>
+	<tr>
+		<td><tt>notificationTickerText</tt></td>
+		<td>int</td>
+		<td><i>Empty<i></td>
+		<td>The notification ticker text for user approved error reports. You can use a template style text (<tt>^1</tt>) where the first placeholder will be replaced by the application name.<i>(Use the <tt>android:resource</tt> attribute and reference to an existing resource)</i></td>
+	<tr>
 </table>
 		
 
