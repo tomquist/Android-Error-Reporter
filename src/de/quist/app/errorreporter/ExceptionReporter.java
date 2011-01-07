@@ -37,8 +37,10 @@ import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.net.Uri;
 import android.os.Environment;
 import android.os.StatFs;
+import android.os.SystemClock;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -143,6 +145,7 @@ public final class ExceptionReporter {
 		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ssZ");
 		
 		Intent intent = new Intent();
+		intent.setData((Uri.parse("custom://" + SystemClock.elapsedRealtime()))); // Makes the intent unique 
 		intent.setAction(ExceptionReportService.ACTION_SEND_REPORT);
 		intent.putExtra(ExceptionReportService.EXTRA_THREAD_NAME, thread.getName());
 		intent.putExtra(ExceptionReportService.EXTRA_EXCEPTION_CLASS, ex.getClass().getName());
@@ -157,7 +160,7 @@ public final class ExceptionReporter {
 		intent.setClass(context, ExceptionReportActivity.class);
 		ComponentName activity = intent.resolveActivity(context.getPackageManager());
 		if (activity != null) {
-			Log.d(TAG, ExceptionReportActivity.class.getSimpleName() + " is registered. Generating notification...");
+			Log.v(TAG, ExceptionReportActivity.class.getSimpleName() + " is registered. Generating notification...");
 			Notification notification = new Notification();
 			notification.icon = getNotificationIcon();
 			notification.tickerText = getNotificationTickerText();

@@ -114,7 +114,7 @@ public class ExceptionReportService extends ReportingIntentService {
 	}
 
 	private void sendReport(Intent intent) throws UnsupportedEncodingException, NameNotFoundException {
-		Log.d(TAG, "Got request to report error: " + intent.toString());
+		Log.v(TAG, "Got request to report error: " + intent.toString());
 		Uri server = getTargetUrl();
 
 		boolean isManualReport = intent.getBooleanExtra(EXTRA_MANUAL_REPORT, false);
@@ -162,7 +162,7 @@ public class ExceptionReportService extends ReportingIntentService {
 
 		try {
 			httpClient.execute(post);
-			Log.d(TAG, "Reported error: " + intent.toString());
+			Log.v(TAG, "Reported error: " + intent.toString());
 		} catch (ClientProtocolException e) {
 			// Ignore this kind of error
 			Log.e(TAG, "Error while sending an error report", e);
@@ -173,7 +173,7 @@ public class ExceptionReportService extends ReportingIntentService {
 			int maximumExponent = getMaximumBackoffExponent();
 			// Retry at a later point in time
 			AlarmManager alarmMgr = (AlarmManager) getSystemService(ALARM_SERVICE);
-			PendingIntent operation = PendingIntent.getService(this, 0, intent, 0);
+			PendingIntent operation = PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
 			int exponent = intent.getIntExtra(EXTRA_CURRENT_RETRY_COUNT, 0);
 			intent.putExtra(EXTRA_CURRENT_RETRY_COUNT, exponent + 1);
 			if (exponent >= maximumRetryCount) {
