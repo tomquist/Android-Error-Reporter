@@ -26,6 +26,7 @@ import java.io.Writer;
 import java.lang.Thread.UncaughtExceptionHandler;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.Random;
 
 import android.app.Notification;
@@ -36,6 +37,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.net.Uri;
 import android.os.Environment;
@@ -158,8 +160,8 @@ public final class ExceptionReporter {
 		if (extraMessage != null) intent.putExtra(ExceptionReportService.EXTRA_EXTRA_MESSAGE, extraMessage);
 
 		intent.setClass(context, ExceptionReportActivity.class);
-		ComponentName activity = intent.resolveActivity(context.getPackageManager());
-		if (activity != null) {
+		List<ResolveInfo> resolvedActivities = context.getPackageManager().queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY);
+		if (!resolvedActivities.isEmpty()) {
 			Log.v(TAG, ExceptionReportActivity.class.getSimpleName() + " is registered. Generating notification...");
 			Notification notification = new Notification();
 			notification.icon = getNotificationIcon();

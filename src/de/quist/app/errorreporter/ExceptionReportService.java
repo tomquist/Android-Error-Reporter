@@ -22,6 +22,7 @@ package de.quist.app.errorreporter;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -169,23 +170,27 @@ public class ExceptionReportService extends ReportingIntentService {
 		} catch (SSLException e) {
 			Log.e(TAG, "Error while sending an error report", e);
 		} catch (IOException e) {
-			int maximumRetryCount = getMaximumRetryCount();
-			int maximumExponent = getMaximumBackoffExponent();
-			// Retry at a later point in time
-			AlarmManager alarmMgr = (AlarmManager) getSystemService(ALARM_SERVICE);
-			PendingIntent operation = PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
-			int exponent = intent.getIntExtra(EXTRA_CURRENT_RETRY_COUNT, 0);
-			intent.putExtra(EXTRA_CURRENT_RETRY_COUNT, exponent + 1);
-			if (exponent >= maximumRetryCount) {
-				// Discard error
-				Log.w(TAG, "Error report reached the maximum retry count and will be discarded.\nStacktrace:\n"+stacktrace);
-				return;
+			if (e instanceof SocketException && e.getMessage().contains("Permission denied")) {
+				Log.e(TAG, "You don't have internet permission", e);
+			} else {
+				int maximumRetryCount = getMaximumRetryCount();
+				int maximumExponent = getMaximumBackoffExponent();
+				// Retry at a later point in time
+				AlarmManager alarmMgr = (AlarmManager) getSystemService(ALARM_SERVICE);
+				PendingIntent operation = PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+				int exponent = intent.getIntExtra(EXTRA_CURRENT_RETRY_COUNT, 0);
+				intent.putExtra(EXTRA_CURRENT_RETRY_COUNT, exponent + 1);
+				if (exponent >= maximumRetryCount) {
+					// Discard error
+					Log.w(TAG, "Error report reached the maximum retry count and will be discarded.\nStacktrace:\n"+stacktrace);
+					return;
+				}
+				if (exponent > maximumExponent) {
+					exponent = maximumExponent;
+				}
+				long backoff = (1 << exponent) * 1000; // backoff in ms
+				alarmMgr.set(AlarmManager.ELAPSED_REALTIME, SystemClock.elapsedRealtime() + backoff, operation);
 			}
-			if (exponent > maximumExponent) {
-				exponent = maximumExponent;
-			}
-			long backoff = (1 << exponent) * 1000; // backoff in ms
-			alarmMgr.set(AlarmManager.ELAPSED_REALTIME, SystemClock.elapsedRealtime() + backoff, operation);
 		}
 	}
 
