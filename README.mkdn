@@ -23,7 +23,7 @@ To integrate **Android Error-Reporter** just follow four simple steps:
 			android:name="de.quist.app.errorreporter.ExceptionReportService"
 			android:process=":exceptionReporter"/>
 
-4. Configure the target URL where to send the errors by adding the following line to your `AndroidManifest.xml`:
+4. Configure the target URL where to send the errors by adding the following line to your `AndroidManifest.xml` (within the `<application/>` node):
 
 		<meta-data
 			android:name="de.quist.app.errorreporter.targetUrl"
@@ -63,7 +63,7 @@ changed by adding the `ExceptionReportActivity` to your `AndroidManifest.xml`. T
 The exception reporter will automatically detect the defined activity and instead of automatically sending the
 report a notification is created which will ask the user for permission to send the notification when clicked.
 You have full control over the texts and icons of both, the notification and the report-dialog. All resources
-can be specified by adding meta-data tags to your `AndroidManifest.xml` which reference to a string/drawable in
+can be specified by adding meta-data tags to your `AndroidManifest.xml` (within the `<application/>` node) which reference to a string/drawable in
 their `android:resource`-attribute, e.g.:
 
 	<meta-data
@@ -81,7 +81,7 @@ time span of 1s+2s+4s+8s+...2^12 s*5=8h). You can change these values by adding 
 
 Configuration
 -------------
-You can add the following name/value pairs as a meta-data node to your `AndroidManifest.xml`.
+You can add the following name/value pairs as a meta-data node to your `AndroidManifest.xml` (within the `<application/>` node).
 
 __All names need to have `de.quist.app.errorreporter.` as a prefix__!!!:
 
