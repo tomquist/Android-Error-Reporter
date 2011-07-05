@@ -179,9 +179,9 @@ public class ExceptionReportService extends ReportingIntentService {
 				int maximumExponent = getMaximumBackoffExponent();
 				// Retry at a later point in time
 				AlarmManager alarmMgr = (AlarmManager) getSystemService(ALARM_SERVICE);
-				PendingIntent operation = PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
 				int exponent = intent.getIntExtra(EXTRA_CURRENT_RETRY_COUNT, 0);
 				intent.putExtra(EXTRA_CURRENT_RETRY_COUNT, exponent + 1);
+				PendingIntent operation = PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
 				if (exponent >= maximumRetryCount) {
 					// Discard error
 					Log.w(TAG, "Error report reached the maximum retry count and will be discarded.\nStacktrace:\n"+stacktrace);
