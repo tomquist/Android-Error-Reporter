@@ -123,6 +123,7 @@ public class ExceptionReportService extends ReportingIntentService {
 		boolean isFroyoOrAbove = isFroyoOrAbove();
 		if (isFroyoOrAbove && !isManualReport && !isReportOnFroyo) {
 			// We don't send automatic reports on froyo or above
+			Log.d(TAG, "Don't send automatic report on froyo");
 			return;
 		}
 		
@@ -160,6 +161,7 @@ public class ExceptionReportService extends ReportingIntentService {
 		HttpClient httpClient = new DefaultHttpClient();
 		HttpPost post = new HttpPost(server.toString());
 		post.setEntity(new UrlEncodedFormEntity(params, HTTP.UTF_8));
+		Log.d(TAG, "Created post request");
 
 		try {
 			httpClient.execute(post);
@@ -216,18 +218,25 @@ public class ExceptionReportService extends ReportingIntentService {
 	}
 
 	public Uri getTargetUrl() throws NameNotFoundException {
-		try {
-			ApplicationInfo ai = getPackageManager().getApplicationInfo(getPackageName(), PackageManager.GET_META_DATA);
-			if (ai.metaData == null) throw new IllegalArgumentException(ExceptionReportService.class.getPackage().getName().concat("targetUrl is undefined"));
-			String urlString = ai.metaData.getString(ExceptionReportService.class.getPackage().getName().concat(".targetUrl"));
-			if (urlString == null) {
-				throw new IllegalArgumentException(ExceptionReportService.class.getPackage().getName().concat("targetUrl is undefined"));
+		ApplicationInfo info = getPackageManager().getApplicationInfo(getPackageName(), PackageManager.GET_META_DATA);
+
+		ApplicationInfo ai = getPackageManager().getApplicationInfo(getPackageName(), PackageManager.GET_META_DATA);
+		if (ai.metaData == null) throw new IllegalArgumentException(ExceptionReportService.class.getPackage().getName().concat("targetUrl is undefined"));
+		String key = ExceptionReportService.class.getPackage().getName().concat(".targetUrl");
+		String urlString = null;
+		if (info.metaData.containsKey(key)) {
+			Object url = info.metaData.get(key);
+			if (url instanceof String) {
+				urlString = (String) url;
+			} else if (url instanceof Integer) {
+				int urlResId = info.metaData.getInt(key);
+				urlString = getString(urlResId);
 			}
-			return Uri.parse(urlString);
-		} catch (NameNotFoundException e) {
-			// Should never happen
-			throw e;
-		} 
+		}
+		if (urlString == null) {
+			throw new IllegalArgumentException(ExceptionReportService.class.getPackage().getName().concat("targetUrl is undefined"));
+		}
+		return Uri.parse(urlString);
 	}
 
 	public int getMaximumRetryCount() throws NameNotFoundException {

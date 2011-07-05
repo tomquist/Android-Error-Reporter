@@ -71,6 +71,7 @@ public class ExceptionReportActivity extends Activity {
 				if (text != null && !TextUtils.isEmpty(text.getText())) {
 					i.putExtra(ExceptionReportService.EXTRA_EXTRA_MESSAGE, text.getText().toString());
 				}
+				i.putExtra(ExceptionReportService.EXTRA_MANUAL_REPORT, true);
 				startService(i);
 				dialog.dismiss();
 				finish();
