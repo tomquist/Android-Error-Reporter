@@ -119,11 +119,10 @@ public class ExceptionReportService extends ReportingIntentService {
 		Uri server = getTargetUrl();
 
 		boolean isManualReport = intent.getBooleanExtra(EXTRA_MANUAL_REPORT, false);
-		boolean isReportOnFroyo = isReportOnFroyo();
-		boolean isFroyoOrAbove = isFroyoOrAbove();
-		if (isFroyoOrAbove && !isManualReport && !isReportOnFroyo) {
-			// We don't send automatic reports on froyo or above
-			Log.d(TAG, "Don't send automatic report on froyo");
+		
+		if (isManualReport) {
+			
+			Log.d(TAG, "automatic submission is disabled");
 			return;
 		}
 		
@@ -201,11 +200,6 @@ public class ExceptionReportService extends ReportingIntentService {
 			list.add(new BasicNameValuePair(name, value));
 		}
 		
-	}
-	
-	private boolean isFroyoOrAbove() {
-		int sdk = getSdkInt();
-		return sdk >= 8;
 	}
 	
 	private int getSdkInt() {
